@@ -1,23 +1,11 @@
-// index.tsx
+// pages/index.tsx
+import Layout from '../components/Layout';
+import ChatBot from '../components/ChatBot'; // کامپوننت چت بات شما
 
-import React from 'react';
-import { Button } from '@mui/material';
-import { useRouter } from 'next/router';
-
-const IndexPage: React.FC = () => {
-  const router = useRouter();
-
-  //const handleLogout = () => {
-    //localStorage.removeItem('token'); // حذف توکن از localStorage
-    //router.reload(); // رفرش کردن صفحه برای به‌روزرسانی وضعیت لاگین
-  //};
-
+export default function Home() {
   return (
-    <div>
-      <h1>داشبورد</h1>
-      
-    </div>
+    <Layout isLoggedIn={true}>
+      <ChatBot />
+    </Layout>
   );
-};
-
-export default IndexPage;
+}
