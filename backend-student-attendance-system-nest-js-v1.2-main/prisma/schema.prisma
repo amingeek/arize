@@ -1,0 +1,37 @@
+//schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id       Int       @id @default(autoincrement())
+  username String
+  email    String    @unique
+  password String
+  roles    Role[]
+}
+
+model Role {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+  // اینجا می‌توانید سایر فیلدهای مربوط به نقش را اضافه کنید
+
+  // ارتباط با مدل User
+  users User[]
+}
+
+model NewPerson {
+  id           Int      @id @default(autoincrement())
+  face         String   // تغییر نوع دادهٔ فیلد face به String (URL)
+  firstName    String
+  lastName     String
+  nationalCode String 
+  studentId    String 
+}
+
