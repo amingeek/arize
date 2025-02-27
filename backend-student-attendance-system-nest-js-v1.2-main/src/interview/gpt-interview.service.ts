@@ -15,7 +15,7 @@ export class GptInterviewerService {
   constructor() {
     this.openai = new OpenAI({
       apiKey: process.env.AVALAI_API_KEY,
-      baseURL: 'https://api.avalapis.ir/v1'
+      baseURL: 'https://api.avalai.ir/v1'
     });
   }
 

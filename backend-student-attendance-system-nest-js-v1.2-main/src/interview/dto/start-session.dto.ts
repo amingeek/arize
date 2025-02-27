@@ -1,11 +1,11 @@
 import { IsString, Length } from 'class-validator';
 
-export class UserResponseDto {
+export class StartSessionDto {
   @IsString()
   @Length(5, 50)
   sessionId: string;
 
   @IsString()
-  @Length(1, 500)
-  answer: string;
+  @Length(3, 100)
+  topic: string;
 }

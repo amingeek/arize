@@ -16,15 +16,32 @@ const ChatBot = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (!input.trim()) return;
 
     setMessages((prev) => [...prev, { sender: "user", text: input }]);
     setInput("");
 
-    setTimeout(() => {
-      setMessages((prev) => [...prev, { sender: "bot", text: `پاسخ به: ${input}` }]);
-    }, 1000);
+    try {
+      const response = await fetch("http://localhost:3000/respond", {  // تغییر مسیر API اینجا
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ sessionId: "your-session-id", answer: input }),
+      });
+
+      const data = await response.json();
+      if (data.question) {
+        setMessages((prev) => [...prev, { sender: "bot", text: data.question }]);
+      } else if (data.petition) {
+        setMessages((prev) => [...prev, { sender: "bot", text: `عریضه نهایی: ${data.petition}` }]);
+      }
+
+    } catch (error) {
+      setMessages((prev) => [...prev, { sender: "bot", text: "خطا در ارسال پیام به سرور" }]);
+      console.error("Error:", error);
+    }
   };
 
   return (
@@ -32,16 +49,16 @@ const ChatBot = () => {
       sx={{
         display: "flex",
         flexDirection: "column",
-        alignItems: "center", // به وسط صفحه هدایت می‌شود
-        width: "100%", // 100% عرض
-        maxWidth: 1000, // حداکثر عرض
-        height: "600px", // ارتفاع افزایش یافته
-        margin: "0 auto", // تنظیم در وسط صفحه
-        p: 2, // فضای داخلی
+        alignItems: "center",
+        width: "100%",
+        maxWidth: 1000,
+        height: "600px",
+        margin: "0 auto",
+        p: 2,
         bgcolor: "white",
         borderRadius: 3,
         boxShadow: "0px 4px 15px rgba(0, 0, 0, 0.1)",
-        overflow: "hidden", // جلوگیری از overflow
+        overflow: "hidden",
       }}
     >
       <Typography variant="h6" align="center" sx={{ mb: 3, fontWeight: "bold", color: "#333" }}>

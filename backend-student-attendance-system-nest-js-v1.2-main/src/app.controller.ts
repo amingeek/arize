@@ -6,7 +6,7 @@ import { StartSessionDto } from './dtos/start-session.dto';
 import { ChatMessage } from './interfaces/chat.interface';
 import { ChatSession } from './interfaces/chat-session.interface';
 
-@Controller()
+@Controller('api')
 export class AppController {
   constructor(
     private readonly avalaiService: AvalaiService,
