@@ -6,6 +6,7 @@ import Login from '../components/Login';
 import { useRouter } from 'next/router';
 import ChatBot from '../components/ChatBot';
 
+
 function MyApp({ Component, pageProps }: AppProps) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const router = useRouter();

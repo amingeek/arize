@@ -1,15 +1,17 @@
-//main.ts
-import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
-import * as bodyParser from 'body-parser';
+import { NestFactory } from "@nestjs/core";
+import { AppModule } from "./app.module";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // **افزایش محدودیت اندازه درخواست:**
-  app.use(bodyParser.json({ limit: '10mb' })); // حداکثر 10 مگابایت
+  // فعال کردن CORS
+  app.enableCors({
+    origin: "http://localhost:3000", // آدرس فرانت‌اند (Next.js)
+    methods: "GET,POST,PUT,DELETE,OPTIONS",
+    allowedHeaders: "Content-Type, Authorization",
+    credentials: true,
+  });
 
-  await app.listen(3001, '0.0.0.0');
+  await app.listen(3001); // یا هر پورتی که برای API استفاده می‌کنی
 }
-
 bootstrap();

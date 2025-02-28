@@ -1,4 +1,4 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, HttpException, HttpStatus } from '@nestjs/common';
 import { AvalaiService } from './services/avalai.service';
 import { SessionService } from './services/session.service';
 import { UserResponseDto } from './dtos/user-response.dto';
@@ -16,9 +16,11 @@ export class AppController {
   @Post('start')
   async startSession(@Body() { sessionId, topic }: StartSessionDto) {
     let session: ChatSession | undefined = await this.sessionService.getSession(sessionId);
-    
+
     if (!session) {
-      session = await this.sessionService.createSession(sessionId, topic);  // ایجاد جلسه جدید
+      // ایجاد جلسه جدید در صورت عدم وجود جلسه قبلی
+      session = await this.sessionService.createSession(sessionId, topic);
+      console.log(`Topic: ${topic}`); // ثبت موضوع جلسه
     }
 
     // سوال اولیه برای تعیین موضوع
@@ -29,18 +31,20 @@ export class AppController {
   @Post('respond')
   async handleResponse(@Body() { sessionId, answer }: UserResponseDto) {
     let session: ChatSession | undefined = await this.sessionService.getSession(sessionId);
-    
+
     if (!session) {
-      throw new Error('جلسه مورد نظر یافت نشد');
+      console.log("session not found");
+      throw new HttpException('جلسه مورد نظر یافت نشد', HttpStatus.NOT_FOUND); // استفاده از HttpException برای خطا
     }
 
     const userMessage: ChatMessage = {
       role: 'user',
       content: answer
     };
-    
+
     if (!session.topic) {
-      session.topic = answer;  // ذخیره موضوع جلسه
+      // ذخیره اولین موضوع جلسه
+      session.topic = answer;
       session.messages.push(userMessage);
       await this.sessionService.updateSession(sessionId, session);
       return { success: true, question: "چه اطلاعات دیگری در این جلسه نیاز دارید؟" };
@@ -55,9 +59,10 @@ export class AppController {
 
   private async handleAIResponse(sessionId: string) {
     const session = await this.sessionService.getSession(sessionId);
-    
+
     if (!session) {
-      throw new Error('جلسه مورد نظر یافت نشد');
+      console.log("session not found");
+      throw new HttpException('جلسه مورد نظر یافت نشد', HttpStatus.NOT_FOUND); // استفاده از HttpException برای خطا
     }
 
     try {
@@ -82,10 +87,10 @@ export class AppController {
       }
 
       return { success: true, question: response };
-      
+
     } catch (error) {
       await this.sessionService.deleteSession(sessionId);
-      throw error;
+      throw new HttpException('خطای داخلی در پردازش درخواست', HttpStatus.INTERNAL_SERVER_ERROR); // استفاده از HttpException برای خطای داخلی
     }
   }
 }
