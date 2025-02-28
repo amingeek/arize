@@ -9,8 +9,8 @@ export class AvalaiService {
 
   constructor() {
     this.client = new OpenAI({
-      apiKey: process.env.AVALAI_API_KEY,
-      baseURL: ' https://api.avalapis.ir/v1', // یا 'https://api.openai.com/v1'
+      apiKey: process.env.AVALAI_API_KEY, // مطمئن شوید که این متغیر محیطی تنظیم شده است
+      baseURL: 'https://openrouter.ai/api/v1', // آدرس پایه OpenRouter
       timeout: 60000, // افزایش زمان انتظار
     });
   }
@@ -26,7 +26,7 @@ export class AvalaiService {
       };
   
       const response = await this.client.chat.completions.create({
-        model: 'gpt-3.5-turbo', // یا 'gpt-4'
+        model: 'deepseek/deepseek-chat:free', // مدل مورد نظر
         messages: [systemMessage, ...messages],
         temperature: 0.7,
       });
@@ -57,6 +57,9 @@ export class AvalaiService {
       4. وقتی اطلاعات کافی جمع شد، عریضه را با [PETITION] شروع کنید
       5. در صورت درخواست کاربر برای پایان، فرآیند را متوقف کنید
       6. به زبان فارسی پاسخ دهید
+      7. نام و نام خانوادگی فرد و کد ملی و هر مشخصاتی که نیاز داری رو از کاربر بپرس تا یک عریضه کامل بسازی 
+      8. هیچ فیلدی خالی نمونه و هرچیزی که نیاز داری رو از کاربر بپرس و اطلاعات رو کامل بگیر و وارد کن 
+      9. از نمونه های مشابه درون اینترنت الگو برداری کن 
     `;
   }
 }

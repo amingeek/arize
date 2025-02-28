@@ -1,5 +1,4 @@
-// components/Layout.ts
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   AppBar,
   Box,
@@ -15,12 +14,12 @@ import {
   ThemeProvider,
   Toolbar,
   Typography,
-  Avatar
+  Avatar,
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import {
   AddCircleOutlineOutlined,
-  SubjectOutlined
+  SubjectOutlined,
 } from '@mui/icons-material';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import ExpandLess from '@mui/icons-material/ExpandLess';
@@ -35,22 +34,22 @@ import LogoutIcon from '@mui/icons-material/Logout';
 const theme = createTheme({
   mixins: {
     toolbar: {
-      minHeight: '50px'
-    }
+      minHeight: '50px',
+    },
   },
   components: {
     MuiInputBase: {
       styleOverrides: {
         root: {
-          height: '35px'
+          height: '35px',
         },
         input: {
           height: '0px',
-          fontSize: '0.9em'
-        }
-      }
-    }
-  }
+          fontSize: '0.9em',
+        },
+      },
+    },
+  },
 });
 
 const drawerWidth = 240;
@@ -59,7 +58,7 @@ const secAppbarHeight = 64;
 const ToolbarOffest = styled('div', { name: 'ToolbarOffest' })(
   ({ theme }) => ({
     ...theme.mixins.toolbar,
-    backgroundColor: 'inherit'
+    backgroundColor: 'inherit',
   })
 );
 
@@ -67,7 +66,7 @@ const AppBar2 = styled('div', { name: 'AppBar2' })(({ theme }) => ({
   display: 'flex',
   minHeight: secAppbarHeight,
   alignItems: 'center',
-  paddingRight: '1.2rem'
+  paddingRight: '1.2rem',
 }));
 
 interface MainContentProps {
@@ -76,27 +75,27 @@ interface MainContentProps {
 
 interface Layout2Props {
   children: React.ReactNode;
-  isLoggedIn: boolean; // اضافه کردن پراپرتی isLoggedIn
+  isLoggedIn: boolean;
 }
 
 const MainContent = styled('div', {
   shouldForwardProp: (prop) => prop !== 'drawerOpen',
-  name: 'MainContent'
+  name: 'MainContent',
 })<MainContentProps>(({ theme, drawerOpen, ...props }) => ({
   zIndex: '3',
   width: '100%',
   marginRight: -drawerWidth,
   transition: theme.transitions.create(['margin', 'width'], {
     easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.leavingScreen
+    duration: theme.transitions.duration.leavingScreen,
   }),
   ...(drawerOpen && {
     width: `calc(100% - ${drawerWidth}px)`,
     transition: theme.transitions.create(['margin', 'width'], {
       easing: theme.transitions.easing.easeOut,
-      duration: theme.transitions.duration.enteringScreen
+      duration: theme.transitions.duration.enteringScreen,
     }),
-    marginRight: 0
+    marginRight: 0,
   }),
 }));
 
@@ -104,11 +103,11 @@ const PageContent = styled('div', { name: 'PageContent' })(
   ({ theme }) => ({
     display: 'flex',
     justifyContent: 'center',
-    height: 'fit-content'
+    height: 'fit-content',
   })
 );
 
-export function Layout2({ children, isLoggedIn }: Layout2Props) { // اضافه کردن پراپرتی isLoggedIn
+export function Layout2({ children, isLoggedIn }: Layout2Props) {
   const router = useRouter();
 
   const [drawerOpen, setDrawerOpen] = useState(true);
@@ -117,15 +116,11 @@ export function Layout2({ children, isLoggedIn }: Layout2Props) { // اضافه 
     2: false,
     3: false,
     4: false,
-    5: false
+    5: false,
   });
 
   const handleDrawer = () => {
     setDrawerOpen(!drawerOpen);
-  };
-
-  const navigate = (path: string) => {
-    router.push(path);
   };
 
   const handleDrawerClose = () => {
@@ -135,14 +130,15 @@ export function Layout2({ children, isLoggedIn }: Layout2Props) { // اضافه 
   const handleDrawList = (event: React.SyntheticEvent, id: number) =>
     setDrawListOpen((prevState) => ({
       ...prevState,
-      [id]: !prevState[id]
+      [id]: !prevState[id],
     }));
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    router.reload();
-    // setIsLoggedIn(false); // حذف این خط چون ما قبلاً وضعیت ورود را از پراپرتی دریافت می‌کنیم
-  };
+  const handleLogout = useCallback(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('token');
+      router.reload();
+    }
+  }, [router]);
 
   const menuItems = [
     {
@@ -154,14 +150,14 @@ export function Layout2({ children, isLoggedIn }: Layout2Props) { // اضافه 
         {
           text: 'شخص جدید',
           icon: <SubjectOutlined color="secondary" />,
-          path: '/newperson'
+          path: '/newperson',
         },
         {
           text: 'مشاهده اشخاص',
           icon: <SubjectOutlined color="secondary" />,
-          path: '/viewperson'
-        }
-      ]
+          path: '/viewperson',
+        },
+      ],
     },
     {
       text: '',
@@ -172,15 +168,15 @@ export function Layout2({ children, isLoggedIn }: Layout2Props) { // اضافه 
         {
           text: ' ',
           icon: <SubjectOutlined color="secondary" />,
-          path: '/'
+          path: '/',
         },
         {
           text: ' ',
           icon: <SubjectOutlined color="secondary" />,
-          path: '/'
-        }
-      ]
-    }
+          path: '/',
+        },
+      ],
+    },
   ];
 
   return (
@@ -189,18 +185,20 @@ export function Layout2({ children, isLoggedIn }: Layout2Props) { // اضافه 
         sx={{
           display: 'flex',
           flexDirection: 'row-reverse',
-          height: '100%'
+          height: '100%',
         }}
-        component="div">
+        component="div"
+      >
         {/* First Appbar */}
         <AppBar
           elevation={0}
           sx={{
             '&.MuiAppBar-root': {
               backgroundColor: '#304967',
-              zIndex: '4'
-            }
-          }}>
+              zIndex: '4',
+            },
+          }}
+        >
           <Toolbar>
             <Typography sx={{ display: 'inline-block', margin: 1 }}>
               هنرستان جوار نفت
@@ -209,7 +207,8 @@ export function Layout2({ children, isLoggedIn }: Layout2Props) { // اضافه 
               sx={{ marginLeft: 'auto' }}
               color="inherit"
               aria-label="drawerOpen drawer"
-              onClick={handleDrawer}>
+              onClick={handleDrawer}
+            >
               <MenuIcon />
             </IconButton>
             <Typography sx={{ display: 'inline-block', margin: 0 }}>
@@ -223,14 +222,14 @@ export function Layout2({ children, isLoggedIn }: Layout2Props) { // اضافه 
                 sx={{ marginRight: '0.2rem' }}
                 color="inherit"
                 aria-label="logout"
-                onClick={handleLogout}>
+                onClick={handleLogout}
+              >
                 <Typography sx={{ display: 'inline-block', color: 'inherit', margin: 1 }}>
                   خروج
                 </Typography>
                 <LogoutIcon />
               </IconButton>
             )}
-
           </Toolbar>
         </AppBar>
 
@@ -258,24 +257,28 @@ export function Layout2({ children, isLoggedIn }: Layout2Props) { // اضافه 
             width: drawerWidth,
             flexShrink: 0,
             '& .MuiDrawer-paper': { width: drawerWidth },
-            zIndex: 2
+            zIndex: 2,
           }}
-          open={drawerOpen}>
+          open={drawerOpen}
+        >
           <ToolbarOffest />
           <List
             component="nav"
             sx={{
               '& .MuiListItemButton-root': {
-                textAlign: 'right'
-              }
-            }}>
+                textAlign: 'right',
+              },
+            }}
+          >
             <ListItemButton
-              onClick={() => navigate('/')}
+              component={Link}
+              href="/"
               sx={{
                 ...(router.pathname == '/' && {
-                  backgroundColor: '#CFCFCF'
-                })
-              }}>
+                  backgroundColor: '#CFCFCF',
+                }),
+              }}
+            >
               <ListItemIcon sx={{ minWidth: '32px' }}>
                 <DashboardIcon />
               </ListItemIcon>
@@ -283,10 +286,10 @@ export function Layout2({ children, isLoggedIn }: Layout2Props) { // اضافه 
             </ListItemButton>
             {/* نشان دادن List */}
             {menuItems.map((item) => (
-              <>
+              <React.Fragment key={item.id}>
                 <ListItemButton
-                  key={item.text}
-                  onClick={(event) => handleDrawList(event, item.id)}>
+                  onClick={(event) => handleDrawList(event, item.id)}
+                >
                   <ListItemIcon sx={{ minWidth: '32px' }}>
                     <AccountCircleIcon />
                   </ListItemIcon>
@@ -298,26 +301,27 @@ export function Layout2({ children, isLoggedIn }: Layout2Props) { // اضافه 
                 {/* نشان دادن SubList */}
                 <Collapse in={drawListOpen[item.id]} timeout="auto" unmountOnExit>
                   <List component="div" disablePadding>
-                    {item.sublists.map((sublist) => (
-                      <>
-                        <ListItemButton
-                          onClick={() => navigate(sublist.path)}
-                          sx={{
-                            pr: 6,
-                            ...(router.pathname === sublist.path && {
-                              backgroundColor: '#CFCFCF'
-                            })
-                          }}>
-                          <ListItemIcon sx={{ minWidth: '32px' }}>
-                            <CircleIcon sx={{ fontSize: '1rem' }} />
-                          </ListItemIcon>
-                          <ListItemText primary={sublist.text} />
-                        </ListItemButton>
-                      </>
+                    {item.sublists.map((sublist, index) => (
+                      <ListItemButton
+                        key={index}
+                        component={Link}
+                        href={sublist.path}
+                        sx={{
+                          pr: 6,
+                          ...(router.pathname === sublist.path && {
+                            backgroundColor: '#CFCFCF',
+                          }),
+                        }}
+                      >
+                        <ListItemIcon sx={{ minWidth: '32px' }}>
+                          <CircleIcon sx={{ fontSize: '1rem' }} />
+                        </ListItemIcon>
+                        <ListItemText primary={sublist.text} />
+                      </ListItemButton>
                     ))}
                   </List>
                 </Collapse>
-              </>
+              </React.Fragment>
             ))}
           </List>
         </Drawer>

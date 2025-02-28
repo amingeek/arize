@@ -15,7 +15,7 @@ export class GptInterviewerService {
   constructor() {
     this.openai = new OpenAI({
       apiKey: process.env.AVALAI_API_KEY,
-      baseURL: 'https://api.avalai.ir/v1'
+      baseURL: 'https://openrouter.ai/api/v1/chat/completions'
     });
   }
 
@@ -45,7 +45,7 @@ export class GptInterviewerService {
   ): Promise<{ response: string; isComplete: boolean }> {
     try {
       const completion = await this.openai.chat.completions.create({
-        model: 'gpt-4o-mini', // یا نام مدل مورد نظر آوالای
+        model: 'deepseek/deepseek-chat:free', // یا نام مدل مورد نظر آوالای
         messages: [this.systemPrompt(topic), ...messages],
         temperature: 0.7,
       });

@@ -3,68 +3,74 @@ import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useRouter } from 'next/router';
-import { Button, TextField, Container, Paper, Typography, Box, Link } from '@mui/material';
+import { Button, TextField, Container, Paper, Typography, Box, FormControlLabel, Checkbox } from '@mui/material';
 import Image from 'next/image';
-import { useAuth } from '../hooks/useAuth';
+import validator from 'validator';
 
 interface LoginProps {
   onLoginSuccess: () => void;
   backgroundImage: string;
+  redirect?: string;
 }
 
-const Login: React.FC<LoginProps> = ({ onLoginSuccess, backgroundImage }) => {
+const Login: React.FC<LoginProps> = ({ onLoginSuccess, backgroundImage, redirect }) => {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
+  const [rememberMe, setRememberMe] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
-  const [isLoading, setIsLoading] = useState<boolean>(false);
   const router = useRouter();
-  const { login } = useAuth();
 
   const handleLogin = async () => {
-    setIsLoading(true);
     try {
       const response = await axios.post('/api/login', {
         email,
         password,
       });
 
+      console.log('Login successful', response.data);
+
       const { token, user } = response.data;
 
-      login(token);
+      // Save token to localStorage یا sessionStorage
+      if (rememberMe) {
+        localStorage.setItem('token', token);
+      } else {
+        sessionStorage.setItem('token', token);
+      }
+
+      setError('');
 
       toast.success('ورود موفقیت‌آمیز!');
 
       setTimeout(() => {
         onLoginSuccess();
-        router.push('/');
+        router.push(redirect || '/'); // هدایت به مسیر قبلی یا صفحه اصلی
       }, 1000);
     } catch (error: any) {
-      const errorMessage = error.response?.data?.message || 'خطایی رخ داده است. لطفاً دوباره تلاش کنید.';
-      setError(errorMessage);
+      const errorMessage = error.response?.data?.message || 'ورود ناموفق. لطفاً اطلاعات را بررسی کنید.';
       toast.error(errorMessage);
-    } finally {
-      setIsLoading(false);
+      setError(errorMessage);
     }
   };
 
-  const validateForm = () => {
-    if (!email || !password) {
-      toast.error('لطفاً تمامی فیلدها را پر کنید');
-      return false;
-    }
+  const handleEmailChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setEmail(e.target.value);
+  };
 
-    if (!/\S+@\S+\.\S+/.test(email)) {
-      toast.error('لطفاً یک ایمیل معتبر وارد کنید');
-      return false;
-    }
-
-    return true;
+  const handlePasswordChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setPassword(e.target.value);
   };
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (!validateForm()) {
+    if (!email || !password) {
+      toast.error('لطفاً تمامی فیلدها را پر کنید');
+      return;
+    }
+
+    if (!validator.isEmail(email)) {
+      toast.error('لطفاً یک ایمیل معتبر وارد کنید');
       return;
     }
 
@@ -82,7 +88,13 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess, backgroundImage }) => {
         alignItems: 'center',
       }}
     >
-      <Image src={backgroundImage} layout="fill" objectFit="cover" alt="تصویر بک‌گراند" priority />
+      <Image
+        src={backgroundImage}
+        layout="fill"
+        objectFit="cover"
+        alt="تصویر بک‌گراند"
+        priority
+      />
       <Container component="main" maxWidth="xs">
         <Box
           sx={{
@@ -106,7 +118,7 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess, backgroundImage }) => {
                   type="email"
                   label="ایمیل"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={handleEmailChange}
                   fullWidth
                   variant="outlined"
                   style={{ marginBottom: '20px' }}
@@ -118,41 +130,23 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess, backgroundImage }) => {
                   type="password"
                   label="پسورد"
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={handlePasswordChange}
                   fullWidth
                   variant="outlined"
                   style={{ marginBottom: '20px' }}
                   inputProps={{ style: { fontSize: 18 } }}
                 />
               </div>
-              <Button
-                type="submit"
-                fullWidth
-                variant="contained"
-                style={{ backgroundColor: 'blue', color: 'white' }}
-                disabled={isLoading}
-              >
-                {isLoading ? 'در حال ورود...' : 'ورود'}
+              <FormControlLabel
+                control={<Checkbox checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)} />}
+                label="مرا به خاطر بسپار"
+              />
+              <Button type="submit" fullWidth variant="contained" style={{ backgroundColor: 'blue', color: 'white' }}>
+                ورود
               </Button>
-              <Typography variant="body2" sx={{ marginTop: '10px' }}>
-                حساب کاربری ندارید؟{' '}
-                <Link href="/register" style={{ color: 'blue', textDecoration: 'none' }}>
-                  ثبت‌نام کنید
-                </Link>
-              </Typography>
             </Paper>
           </form>
-          <ToastContainer
-            position="bottom-right"
-            autoClose={3000}
-            hideProgressBar={false}
-            newestOnTop={false}
-            closeOnClick
-            rtl={true}
-            pauseOnFocusLoss
-            draggable
-            pauseOnHover
-          />
+          <ToastContainer position="bottom-right" />
         </Box>
       </Container>
     </Box>
