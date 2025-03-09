@@ -13,7 +13,7 @@ const IndexPage: React.FC = () => {
         // اگر کاربر لاگین نکرده باشد، به صفحه چت‌بات هدایت می‌شود
         router.push('/chat');
       }
-    }
+    }۷
   }, [router]);
 
   const handleLogout = () => {
